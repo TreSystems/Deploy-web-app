@@ -13,14 +13,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4  # Checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
 
-    - name: Login to Azure
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}  # Use the Azure credentials secret for login.
-
-    - name: Deploy to Azure Web App
+    - name: 'Deploy to Azure Web App'
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'technology-services'  # Specifies the name of your Azure Web App.
-        # slot-name: 'Production'  # Uncomment this if you're deploying to a specific slot.
-        package: .  # Deploys the content of your repository to Azure Web App.
+        app-name: 'technology-services' # Your actual Azure Web App name
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: .
+
