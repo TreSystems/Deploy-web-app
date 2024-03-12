@@ -1,66 +1,26 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - technology-services
+name: Deploy HTML app to Azure Web App - technology-services
 
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - main  # This workflow triggers on push to the main branch.
+  workflow_dispatch:  # This also allows for manual workflow runs.
 
 jobs:
-  build:
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '8.x'
-          include-prerelease: true
-
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
-
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
   deploy:
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
+    runs-on: ubuntu-latest  # Specifies the runner environment.
 
     steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v3
-        with:
-          name: .net-app
-      
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_83B553AF0BFB4225ABAFC3A33FC884A9 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8A466D69E65640DFBBAE89DCAF9F56C7 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F47B6C0B06514A47AE180B463FEAA9A6 }}
+    - uses: actions/checkout@v4  # Checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
 
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'technology-services'
-          slot-name: 'Production'
-          package: .
-          
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}  # Use the Azure credentials secret for login.
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'technology-services'  # Specifies the name of your Azure Web App.
+        # slot-name: 'Production'  # Uncomment this if you're deploying to a specific slot.
+        package: .  # Deploys the content of your repository to Azure Web App.
